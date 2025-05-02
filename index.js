@@ -8,6 +8,7 @@ let ballDraggingOffsetX = 0;
 let ballDraggingOffsetY = 0;
 let lastMouseMovementX = 0;
 let lastMouseMovementY = 0;
+let lastTouch;
 
 const windowHeight = window.innerHeight;
 const windowWidth = window.innerWidth;
@@ -72,26 +73,34 @@ ball.addEventListener("mouseup", function (e) {
 )
 
 document.addEventListener("touchmove", function (e) {
-    e.preventDefault()
     if (ballDragging) {
         posXLast = (e.touches ? e.touches[0].clientX : e.clientX) - ballDraggingOffsetX;
         posYLast = (e.touches ? e.touches[0].clientY : e.clientY) - ballDraggingOffsetY;
         ball.style.left = posXLast + "px";
         ball.style.top = posYLast + "px";
+
+        if (!e.movementX && !e.movementY && e.touches && lastTouch) {
+            e.movementX = e.touches[0].pageX - lastTouch.pageX;
+            e.movementY = e.touches[0].pageY - lastTouch.pageY;
+        }
+
         lastMouseMovementX = e.movementX;
         lastMouseMovementY = e.movementY;
+        lastTouch = e.touches[0];
     }
 })
 ball.addEventListener("touchstart", function (e) {
+    e.preventDefault()
     ballDragging = true;
     ballDraggingOffsetX = (e.touches ? e.touches[0].clientX : e.clientX) - ball.offsetLeft;
     ballDraggingOffsetY = (e.touches ? e.touches[0].clientY : e.clientY) - ball.offsetTop;
 })
-ball.addEventListener("touchend", function () {
+ball.addEventListener("touchend", function (e) {
     ballDragging = false;
     vXLast = lastMouseMovementX * mouseThrowStrengthFactor;
     vYLast = lastMouseMovementY * mouseThrowStrengthFactor;
     tLast = new Date().getTime();
+    lastTouch = null;
 
     requestAnimationFrame(loop);
 })

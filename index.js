@@ -88,7 +88,7 @@ ball.addEventListener("touchstart", function (e) {
     ballDraggingOffsetX = (e.touches ? e.touches[0].clientX : e.clientX) - ball.offsetLeft;
     ballDraggingOffsetY = (e.touches ? e.touches[0].clientY : e.clientY) - ball.offsetTop;
 })
-document.addEventListener("touchend", function () {
+document.addEventListener("touchcancel", function () {
     e.preventDefault();
     ballDragging = false;
     vXLast = lastMouseMovementX * mouseThrowStrengthFactor;

@@ -1,6 +1,6 @@
 const mainAudio = new Audio("assets/sounds/main.mp3");
 mainAudio.loop = true;
-mainAudio.volume = 0;
+mainAudio.volume = 0.8;
 const playOverlay = document.querySelector(".play-overlay");
 playOverlay.onclick = function () {
     mainAudio.play();

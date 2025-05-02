@@ -72,7 +72,6 @@ ball.addEventListener("mouseup", function (e) {
 )
 
 document.addEventListener("touchmove", function (e) {
-    e.preventDefault();
     if (ballDragging) {
         posXLast = (e.touches ? e.touches[0].clientX : e.clientX) - ballDraggingOffsetX;
         posYLast = (e.touches ? e.touches[0].clientY : e.clientY) - ballDraggingOffsetY;
@@ -83,13 +82,11 @@ document.addEventListener("touchmove", function (e) {
     }
 })
 ball.addEventListener("touchstart", function (e) {
-    e.preventDefault();
     ballDragging = true;
     ballDraggingOffsetX = (e.touches ? e.touches[0].clientX : e.clientX) - ball.offsetLeft;
     ballDraggingOffsetY = (e.touches ? e.touches[0].clientY : e.clientY) - ball.offsetTop;
 })
-document.addEventListener("touchcancel", function () {
-    e.preventDefault();
+ball.addEventListener("touchend", function () {
     ballDragging = false;
     vXLast = lastMouseMovementX * mouseThrowStrengthFactor;
     vYLast = lastMouseMovementY * mouseThrowStrengthFactor;

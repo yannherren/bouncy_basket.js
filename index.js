@@ -41,12 +41,14 @@ function Boundary(element) {
 }
 
 function startDragBall(e) {
+    e.preventDefault();
     ballDragging = true;
     ballDraggingOffsetX = e.clientX - ball.offsetLeft;
     ballDraggingOffsetY = e.clientY - ball.offsetTop;
 }
 
 function endDragBall(e) {
+    e.preventDefault();
     ballDragging = false;
     vXLast = lastMouseMovementX * mouseThrowStrengthFactor;
     vYLast = lastMouseMovementY * mouseThrowStrengthFactor;
@@ -56,6 +58,7 @@ function endDragBall(e) {
 }
 
 function dragBall(e) {
+    e.preventDefault();
     if (ballDragging) {
         posXLast = e.clientX - ballDraggingOffsetX;
         posYLast = e.clientY - ballDraggingOffsetY;

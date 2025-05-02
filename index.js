@@ -20,10 +20,10 @@ const dampingWall = 0.2;
 const aGravity = 0.000981 * weight;
 
 let vYLast = 0;
-let posYLast = 100;
+let posYLast = (3 * windowHeight / 4);
 
 let vXLast = 0;
-let posXLast = 100;
+let posXLast = (windowWidth / 2) - (ballWidth / 2);
 let aX = 0.0000;
 
 let tLast = new Date().getTime();
@@ -40,6 +40,9 @@ let checkpointTimeout;
 
 let overallPoints = 0;
 let bouncePoints = 0;
+
+ball.style.top = posYLast + "px";
+ball.style.left = posXLast + "px";
 
 function Box(element) {
     const rects = element.getBoundingClientRect();
@@ -185,6 +188,3 @@ function loop() {
 
     if (!ballDragging) requestAnimationFrame(loop);
 }
-
-
-requestAnimationFrame(loop)

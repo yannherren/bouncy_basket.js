@@ -21,6 +21,7 @@ body {
     -khtml-user-select: none;
     -webkit-user-select: none;
     -o-user-select: none;
+    overflow: hidden;
 }
 
 .ball {
@@ -42,6 +43,7 @@ body {
     justify-content: center;
     align-items: baseline;
     pointer-events: none;
+    overflow: hidden;
 }
 
 
@@ -50,6 +52,8 @@ body {
     top: 20%;
     height: 80%;
     z-index: 1;
+    max-width: 100%;
+    object-fit: cover;
 }
 
 .hoop-overlay {
@@ -80,15 +84,19 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 2%;
+    max-width: 100%;
+    object-fit: cover;
 }
 
 .boundary, .boundary-1 {
     position: relative;
     top: 29%;
     /* Only for debugging */
-    /* background-color: blue; */
+     background-color: blue;
     width: 2%;
     height: 2%;
+    min-width: 12px;
+    min-height: 12px;
     display: inline-block;
 }
 

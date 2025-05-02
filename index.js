@@ -72,6 +72,7 @@ ball.addEventListener("mouseup", function (e) {
 )
 
 document.addEventListener("touchmove", function (e) {
+    e.preventDefault()
     if (ballDragging) {
         posXLast = (e.touches ? e.touches[0].clientX : e.clientX) - ballDraggingOffsetX;
         posYLast = (e.touches ? e.touches[0].clientY : e.clientY) - ballDraggingOffsetY;

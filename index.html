@@ -6,11 +6,24 @@
     <link rel="stylesheet" href="style.css">
     <title>Document</title>
     <script src="index.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="play-overlay">
+    <img src="assets/icons/play.png" height="96" alt="play"/>
+</div>
+<div class="logo">
+    <img src="assets/logo.png">
+    <span class="text">Grab the ball to start!</span>
+</div>
+<div class="scores">
+    <span class="bounces-score">Bounces: <span>0</span></span>
+    <span class="overall-score">Overall score: <span>0</span></span>
+</div>
 <div class="content">
     <span class="ball"></span>
-
     <div class="hoop-container">
         <div class="hoop-boundaries">
             <span class="boundary"></span>

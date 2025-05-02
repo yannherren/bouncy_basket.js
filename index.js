@@ -1,6 +1,27 @@
+const mainAudio = new Audio("assets/sounds/main.mp3");
+mainAudio.loop = true;
+mainAudio.volume = 0.8;
+const playOverlay = document.querySelector(".play-overlay");
+playOverlay.onclick = function () {
+    mainAudio.play();
+    playOverlay.classList.add("play-overlay-hide");
+    playOverlay.style.pointerEvents = "none"
+    setTimeout(() => {
+        playOverlay.style.display = "none"
+    }, 500);
+}
+
+const bounce = new Audio("assets/sounds/bounce.mp3");
+const win = new Audio("assets/sounds/win.mp3");
+
+const logo = document.querySelector(".logo");
+
 const ball = document.querySelector(".ball");
 const ballHeight = ball.clientHeight;
 const ballWidth = ball.clientWidth;
+
+const bouncesScore = document.querySelector(".bounces-score").firstElementChild;
+const overallScore = document.querySelector(".overall-score").firstElementChild;
 
 const mouseThrowStrengthFactor = 0.05;
 let ballDragging = false;
@@ -93,6 +114,7 @@ function dragBall(e) {
 
 function startDraggingBall(e) {
     e.preventDefault()
+    logo.style.display = "none";
     bouncePoints = 0;
     ballDragging = true;
     ballDraggingOffsetX = (e.touches ? e.touches[0].clientX : e.clientX) - ball.offsetLeft;
@@ -135,6 +157,7 @@ function loop() {
         vY = -vY * dampingFloor;
         vX = vX * frictionFloor;
         bouncePoints++;
+        bounce.play();
     }
 
     if (posX >= windowWidth - ballWidth || posX < 0) {
@@ -142,6 +165,7 @@ function loop() {
         vX = -vX * dampingWall;
         aX = 0;
         bouncePoints++;
+        bounce.play();
     }
 
     // Bounce off boundaries
@@ -174,9 +198,8 @@ function loop() {
         checkpoint1Touched = false;
         clearTimeout(checkpointTimeout);
         checkpointTimeout = null;
+        win.play()
     }
-
-    console.log(overallPoints)
 
     posYLast = posY;
     vYLast = vY;
@@ -185,6 +208,9 @@ function loop() {
     vXLast = vX;
 
     tLast = t;
+
+    bouncesScore.innerHTML = bouncePoints;
+    overallScore.innerHTML = overallPoints;
 
     if (!ballDragging) requestAnimationFrame(loop);
 }

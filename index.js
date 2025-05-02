@@ -40,24 +40,8 @@ function Boundary(element) {
     this.damping = 0.8;
 }
 
-function startDragBall(e) {
-    e.preventDefault();
-    ballDragging = true;
-    ballDraggingOffsetX = e.clientX - ball.offsetLeft;
-    ballDraggingOffsetY = e.clientY - ball.offsetTop;
-}
 
-function endDragBall(e) {
-    e.preventDefault();
-    ballDragging = false;
-    vXLast = lastMouseMovementX * mouseThrowStrengthFactor;
-    vYLast = lastMouseMovementY * mouseThrowStrengthFactor;
-    tLast = new Date().getTime();
-
-    requestAnimationFrame(loop);
-}
-
-function dragBall(e) {
+document.addEventListener("mousemove", function (e) {
     e.preventDefault();
     if (ballDragging) {
         posXLast = e.clientX - ballDraggingOffsetX;
@@ -67,15 +51,52 @@ function dragBall(e) {
         lastMouseMovementX = e.movementX;
         lastMouseMovementY = e.movementY;
     }
-}
+})
 
-document.addEventListener("mousemove", dragBall)
-ball.addEventListener("mousedown", startDragBall)
-ball.addEventListener("mouseup", endDragBall)
+ball.addEventListener("mousedown", function (e) {
+    e.preventDefault();
+    ballDragging = true;
+    ballDraggingOffsetX = e.clientX - ball.offsetLeft;
+    ballDraggingOffsetY = e.clientY - ball.offsetTop;
+})
 
-document.addEventListener("touchmove", dragBall)
-ball.addEventListener("touchstart", startDragBall)
-ball.addEventListener("touchend", endDragBall)
+ball.addEventListener("mouseup", function (e) {
+        e.preventDefault();
+        ballDragging = false;
+        vXLast = lastMouseMovementX * mouseThrowStrengthFactor;
+        vYLast = lastMouseMovementY * mouseThrowStrengthFactor;
+        tLast = new Date().getTime();
+
+        requestAnimationFrame(loop);
+    }
+)
+
+document.addEventListener("touchmove", function (e) {
+    e.preventDefault();
+    if (ballDragging) {
+        posXLast = (e.touches ? e.touches[0].clientX : e.clientX) - ballDraggingOffsetX;
+        posYLast = (e.touches ? e.touches[0].clientY : e.clientY) - ballDraggingOffsetY;
+        ball.style.left = posXLast + "px";
+        ball.style.top = posYLast + "px";
+        lastMouseMovementX = e.movementX;
+        lastMouseMovementY = e.movementY;
+    }
+})
+ball.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    ballDragging = true;
+    ballDraggingOffsetX = (e.touches ? e.touches[0].clientX : e.clientX) - ball.offsetLeft;
+    ballDraggingOffsetY = (e.touches ? e.touches[0].clientY : e.clientY) - ball.offsetTop;
+})
+ball.addEventListener("touchend", function () {
+    e.preventDefault();
+    ballDragging = false;
+    vXLast = lastMouseMovementX * mouseThrowStrengthFactor;
+    vYLast = lastMouseMovementY * mouseThrowStrengthFactor;
+    tLast = new Date().getTime();
+
+    requestAnimationFrame(loop);
+})
 
 function loop() {
     const t = (new Date()).getTime();

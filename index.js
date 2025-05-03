@@ -248,7 +248,7 @@ function loop() {
         checkpoint1Touched = false;
         clearTimeout(checkpointTimeout);
         checkpointTimeout = null;
-        if (bouncePoints > 0) playSound(winAudioSrc, false, 1);
+        if (bouncePoints > 0) playSound(winAudioSrc, false, 0.8);
     }
 
     posYLast = posY;

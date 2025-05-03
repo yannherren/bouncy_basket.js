@@ -329,6 +329,7 @@ function loop() {
             levelIdx++;
             if (levelIdx === 6) {
                 (await crowdSound).source.stop();
+                crowdSound = null;
                 spaceSound = playSound(spaceSoundSrc, true, 0.6);
             } else if (levelIdx === 3) {
                 crowdSound = playSound(crowdAudioSrc, true, 0.2);

@@ -304,6 +304,9 @@ function loop() {
 
     bouncesScoreElement.innerHTML = bouncePoints;
     overallScoreElement.innerHTML = overallPoints;
+    if (nextLevel) {
+        overallScoreElement.innerHTML += "/" + nextLevel.requiredScore
+    }
 
     if (nextLevel && overallPoints >= nextLevel.requiredScore) {
         changeScenery.style.display = "flex";

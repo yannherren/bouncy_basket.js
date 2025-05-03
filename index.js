@@ -150,7 +150,7 @@ function touchesBox(box, posY, posX) {
 function loadLevel(level) {
     ball.style.backgroundImage = "url(\"" + level.ball + "\")"
     content.style.backgroundImage = "url(\"" + level.gym + "\")"
-    levelNameElement.innerHTML = level.name + " (" + (levelIdx + 1) + "/" + levels.length + ")";
+    levelNameElement.innerHTML = level.name;
     secondsLeft += level.addedSeconds;
 }
 
@@ -323,6 +323,7 @@ function loop() {
             ball.style.left = initialBallPositionX + "px";
             ball.style.top = initialBallPositionY + "px";
             bouncePoints = 0;
+            if (nextLevel) overallScoreElement.innerHTML = overallPoints + "/" + nextLevel.requiredScore
         }, sceneryChangeDuration / 2)
         setTimeout(() => {
             changeScenery.style.display = "none";

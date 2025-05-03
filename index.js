@@ -1,12 +1,11 @@
 import {levels} from './levels.js';
 
+let audioContext;
 
-const mainAudio = new Audio("assets/sounds/main.mp3");
-mainAudio.loop = true;
-mainAudio.volume = 0.8;
 const playOverlay = document.querySelector(".play-overlay");
 playOverlay.onclick = function () {
-    mainAudio.play();
+    audioContext = new AudioContext()
+    playSound("assets/sounds/main.mp3", true, 1);
     playOverlay.classList.add("play-overlay-hide");
     playOverlay.style.pointerEvents = "none"
     setTimeout(() => {
@@ -14,9 +13,10 @@ playOverlay.onclick = function () {
     }, 500);
 }
 
-const bounce = new Audio("assets/sounds/bounce.mp3");
-const win = new Audio("assets/sounds/win.mp3");
-const levelUp = new Audio("assets/sounds/levelup.mp3");
+const bounceAudioSrc = "assets/sounds/bounce.mp3";
+const winAudioSrc = "assets/sounds/win.mp3";
+const crowdAudioSrc = "assets/sounds/crowd.mp3";
+const levelUpAudioSrc = "assets/sounds/levelup.mp3";
 const levelUpDuration = 3000;
 
 const logo = document.querySelector(".logo");
@@ -103,6 +103,24 @@ function Boundary(element) {
     this.damping = 0.8;
 }
 
+async function playSound(url, loop, volume) {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.loop = loop;
+
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = volume;
+
+    source.connect(gainNode).connect(audioContext.destination);
+    source.start(0);
+
+    return source;
+}
+
 function touchesBox(box, posY, posX) {
     let touchX = false;
     let touchY = false;
@@ -187,7 +205,7 @@ function loop() {
         vX = vX * frictionFloor;
         if (t - lastBounceTime > 100) {
             bouncePoints++;
-            bounce.play();
+            playSound(bounceAudioSrc, false, 1);
         }
         lastBounceTime = t;
     }
@@ -197,7 +215,7 @@ function loop() {
         vX = -vX * dampingWall;
         aX = 0;
         bouncePoints++;
-        bounce.play();
+        playSound(bounceAudioSrc, false, 1);
     }
 
     // Bounce off boundaries
@@ -230,7 +248,7 @@ function loop() {
         checkpoint1Touched = false;
         clearTimeout(checkpointTimeout);
         checkpointTimeout = null;
-        if (bouncesScore > 0) win.play()
+        if (bouncePoints > 0) playSound(winAudioSrc, false, 1);
     }
 
     posYLast = posY;
@@ -246,12 +264,12 @@ function loop() {
 
     if (nextLevel && overallPoints >= nextLevel.requiredScore) {
         changeScenery.style.display = "flex";
-        mainAudio.volume = 0.2;
-        setTimeout(() => {
-            levelUp.play();
+        setTimeout(async () => {
+            playSound(levelUpAudioSrc, false, 1);
         }, 200);
         setTimeout(() => {
             levelIdx++;
+            if (levelIdx > 2) playSound(crowdAudioSrc, true, 0.3)
             loadLevel(nextLevel);
             nextLevel = levels[levelIdx + 1];
             ball.style.left = initialBallPositionX + "px";
@@ -262,7 +280,6 @@ function loop() {
             changeScenery.style.display = "none";
         }, sceneryChangeDuration);
         setTimeout(() => {
-            mainAudio.volume = 0.8;
         }, levelUpDuration + 200);
         return;
     }

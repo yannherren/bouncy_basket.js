@@ -9,7 +9,7 @@ export const levels = [
     name: "Hobbyist",
     ball: "assets/basketballs/ball2.png",
     gym: "assets/gyms/hall2.png",
-    requiredScore: 10
+    requiredScore: 1
   },
   {
     name: "Amateur",

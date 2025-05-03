@@ -4,21 +4,21 @@ export const levels = [
     ball: "assets/basketballs/ball1.png",
     gym: "assets/gyms/hall1.png",
     requiredScore: 0,
-    addedSeconds: 10
+    addedSeconds: 60
   },
   {
     name: "Hobbyist",
     ball: "assets/basketballs/ball2.png",
     gym: "assets/gyms/hall2.png",
     requiredScore: 1,
-    addedSeconds: 90
+    addedSeconds: 60
   },
   {
     name: "Amateur",
     ball: "assets/basketballs/ball3.png",
     gym: "assets/gyms/hall3.png",
     requiredScore: 30,
-    addedSeconds: 100
+    addedSeconds: 60
   },
   {
     name: "Pro",
@@ -32,7 +32,7 @@ export const levels = [
     ball: "assets/basketballs/ball5.png",
     gym: "assets/gyms/hall5.png",
     requiredScore: 100,
-    addedSeconds: 120
+    addedSeconds: 60
   },
   {
     name: "All-Star",

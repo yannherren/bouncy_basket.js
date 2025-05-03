@@ -2,10 +2,13 @@ import {levels} from './levels.js';
 
 let audioContext;
 
+let mainSound;
+let crowdSound;
+
 const playOverlay = document.querySelector(".play-overlay");
 playOverlay.onclick = function () {
     audioContext = new AudioContext()
-    playSound("assets/sounds/main.mp3", true, 1);
+    mainSound = playSound("assets/sounds/main.mp3", true, 1);
     playOverlay.classList.add("play-overlay-hide");
     playOverlay.style.pointerEvents = "none"
     setTimeout(() => {
@@ -19,6 +22,10 @@ const crowdAudioSrc = "assets/sounds/crowd.mp3";
 const levelUpAudioSrc = "assets/sounds/levelup.mp3";
 const levelUpDuration = 3000;
 
+let secondsLeft = 0;
+let timer;
+let gameOver = false;
+
 const logo = document.querySelector(".logo");
 
 const ball = document.querySelector(".ball");
@@ -30,11 +37,16 @@ const content = document.querySelector(".content");
 const changeScenery = document.querySelector(".change-scenery");
 const sceneryChangeDuration = 2000;
 
-const scores = document.querySelector(".scores");
-const bouncesScore = document.querySelector(".bounces-score").firstElementChild;
-const overallScore = document.querySelector(".overall-score").firstElementChild;
-const levelName = document.querySelector(".level-name").firstElementChild;
-scores.style.display = "none";
+const gameOverElement = document.querySelector(".game-over");
+
+const scoresElement = document.querySelector(".scores");
+const bouncesScoreElement = document.querySelector(".bounces-score").firstElementChild;
+const overallScoreElement = document.querySelector(".overall-score").firstElementChild;
+const finalScoreElement = document.querySelector(".final-score").firstElementChild;
+const finalLevelElement = document.querySelector(".final-level").firstElementChild;
+const timeElement = document.querySelector(".time-left").firstElementChild;
+const levelNameElement = document.querySelector(".level-name").firstElementChild;
+scoresElement.style.display = "none";
 
 const mouseThrowStrengthFactor = 0.05;
 let ballDragging = false;
@@ -118,7 +130,7 @@ async function playSound(url, loop, volume) {
     source.connect(gainNode).connect(audioContext.destination);
     source.start(0);
 
-    return source;
+    return {source, gainNode};
 }
 
 function touchesBox(box, posY, posX) {
@@ -136,7 +148,27 @@ function touchesBox(box, posY, posX) {
 function loadLevel(level) {
     ball.style.backgroundImage = "url(\"" + level.ball + "\")"
     content.style.backgroundImage = "url(\"" + level.gym + "\")"
-    levelName.innerHTML = level.name + " (" + (levelIdx + 1) + "/" + levels.length + ")";
+    levelNameElement.innerHTML = level.name + " (" + (levelIdx + 1) + "/" + levels.length + ")";
+    secondsLeft += level.addedSeconds;
+}
+
+async function handleCountdownTick() {
+    secondsLeft = secondsLeft - 1;
+    const minutes = Math.floor(secondsLeft / 60);
+    const seconds = secondsLeft % 60;
+    if (minutes === 0 && seconds < 30) timeElement.style.color = 'red';
+    else timeElement.style.color = 'white';
+    timeElement.innerHTML = minutes + ":" + String(seconds).padStart(2, '0');
+    if (minutes === 0 && seconds === 0) {
+        gameOver = true;
+        (await mainSound).gainNode.gain.value = 0.4;
+        if (!crowdSound) crowdSound = playSound(crowdAudioSrc, true, 0.7);
+        (await crowdSound).gainNode.gain.value = 0.6;
+        finalScoreElement.innerHTML = overallPoints;
+        finalLevelElement.innerHTML = levels[levelIdx].name;
+        gameOverElement.style.display = "flex";
+        gameOverElement.style.pointerEvents = "all";
+    }
 }
 
 function dragBall(e) {
@@ -160,7 +192,8 @@ function dragBall(e) {
 function startDraggingBall(e) {
     e.preventDefault()
     logo.style.display = "none";
-    scores.style.display = "flex";
+    scoresElement.style.display = "flex";
+    if (!timer) timer = setInterval(() => handleCountdownTick(), 1000);
     logo.classList.remove("logo");
     bouncePoints = 0;
     ballDragging = true;
@@ -259,17 +292,18 @@ function loop() {
 
     tLast = t;
 
-    bouncesScore.innerHTML = bouncePoints;
-    overallScore.innerHTML = overallPoints;
+    bouncesScoreElement.innerHTML = bouncePoints;
+    overallScoreElement.innerHTML = overallPoints;
 
     if (nextLevel && overallPoints >= nextLevel.requiredScore) {
         changeScenery.style.display = "flex";
         setTimeout(async () => {
+            (await mainSound).gainNode.gain.value = 0.4;
             playSound(levelUpAudioSrc, false, 1);
         }, 200);
         setTimeout(() => {
             levelIdx++;
-            if (levelIdx > 2) playSound(crowdAudioSrc, true, 0.3)
+            if (levelIdx > 2) crowdSound = playSound(crowdAudioSrc, true, 0.2);
             loadLevel(nextLevel);
             nextLevel = levels[levelIdx + 1];
             ball.style.left = initialBallPositionX + "px";
@@ -279,10 +313,13 @@ function loop() {
         setTimeout(() => {
             changeScenery.style.display = "none";
         }, sceneryChangeDuration);
-        setTimeout(() => {
+        setTimeout(async () => {
+            (await mainSound).gainNode.gain.value = 1;
         }, levelUpDuration + 200);
         return;
     }
+
+    if (gameOver) return;
 
     if (!ballDragging) requestAnimationFrame(loop);
 }

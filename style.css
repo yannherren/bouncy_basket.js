@@ -81,11 +81,6 @@ body {
     .scores {
         font-size: 24px;
     }
-
-    .scores .current .bounces-score {
-        display: flex;
-        flex-direction: column;
-    }
 }
 
 .scores .overall {
@@ -96,7 +91,7 @@ body {
 
 .scores .current {
     display: flex;
-    align-items: center;
+    flex-direction: column;
 }
 
 .bounces-score, .overall-score {
@@ -144,6 +139,54 @@ body {
     25% {transform: scale(1)}
     75% {transform: scale(1)}
     100% {transform: scale(0)}
+}
+
+.game-over {
+    position: absolute;
+    z-index: 1000;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    align-items: center;
+    justify-content: center;
+    display: none;
+    animation: 0.5s over-appear;
+    flex-direction: column;
+    pointer-events: none;
+    gap: 24px;
+}
+
+.game-over .text {
+    font-size: 32px;
+}
+
+.game-over a {
+    text-decoration: none;
+    color: white;
+    font-size: 32px;
+    padding: 24px 24px 16px 24px;
+    border-radius: 4px;
+    background-image: linear-gradient(rgba(252,141,21,254), rgba(214,37,13,254));
+}
+
+@keyframes over-appear {
+    from {opacity: 0}
+    to {opacity: 1}
+}
+
+.game-over img {
+    width: 80%;
+    max-width: 300px;
+    height: auto;
+    animation: pop-in 0.5s 0.5s forwards;
+    opacity: 0;
+}
+
+@keyframes pop-in {
+    0% {transform: scale(0); opacity: 0}
+    80% {transform: scale(1.02); opacity: 1}
+    90% {transform: scale(1); opacity: 1}
+    100% {transform: scale(1); opacity: 1}
 }
 
 .content {

@@ -4,6 +4,7 @@ let audioContext;
 
 let mainSound;
 let crowdSound;
+let spaceSound;
 let timerSound;
 
 const playOverlay = document.querySelector(".play-overlay");
@@ -21,6 +22,7 @@ const bounceAudioSrc = "assets/sounds/bounce.mp3";
 const winAudioSrc = "assets/sounds/win.mp3";
 const crowdAudioSrc = "assets/sounds/crowd.mp3";
 const levelUpAudioSrc = "assets/sounds/levelup.mp3";
+const spaceSoundSrc = "assets/sounds/space.mp3";
 const timerSoundSrc = "assets/sounds/timer.mp3";
 const levelUpDuration = 3000;
 
@@ -61,11 +63,12 @@ let lastTouch;
 const windowHeight = window.innerHeight;
 const windowWidth = window.innerWidth;
 
-const weight = 2;
+let weight = 2;
 const dampingFloor = 0.7;
 const frictionFloor = 0.9;
 const dampingWall = 0.2;
-const aGravity = 0.000981 * weight;
+const defaultGravity = 0.000981
+let aGravity = defaultGravity * weight;
 
 const initialBallPositionX = (windowWidth / 2) - (ballWidth / 2);
 const initialBallPositionY = (3 * windowHeight / 4);
@@ -151,6 +154,8 @@ function loadLevel(level) {
     ball.style.backgroundImage = "url(\"" + level.ball + "\")"
     content.style.backgroundImage = "url(\"" + level.gym + "\")"
     levelNameElement.innerHTML = level.name;
+    if (level.weight) aGravity = defaultGravity * level.weight;
+    else aGravity = defaultGravity * weight;
     secondsLeft += level.addedSeconds;
 }
 
@@ -166,19 +171,24 @@ async function handleCountdownTick() {
     }
     timeElement.innerHTML = minutes + ":" + String(seconds).padStart(2, '0');
     if (minutes === 0 && seconds === 0) {
-        gameOver = true;
-        if (timerSound) (await timerSound).source.stop();
-        timerSound = null;
-        (await mainSound).gainNode.gain.value = 0.4;
-        if (!crowdSound) crowdSound = playSound(crowdAudioSrc, true, 0.7);
-        (await crowdSound).gainNode.gain.value = 0.6;
-        finalScoreElement.innerHTML = overallPoints;
-        finalLevelElement.innerHTML = levels[levelIdx].name;
-        gameOverElement.style.display = "flex";
-        gameOverElement.style.pointerEvents = "all";
+        handleGameOver();
     } else {
         secondsLeft = secondsLeft - 1;
     }
+}
+
+async function handleGameOver() {
+    gameOver = true;
+    if (timerSound) (await timerSound).source.stop();
+    if (spaceSound) (await spaceSound).source.stop();
+    timerSound = null;
+    (await mainSound).gainNode.gain.value = 0.4;
+    if (!crowdSound) crowdSound = playSound(crowdAudioSrc, true, 0.7);
+    (await crowdSound).gainNode.gain.value = 0.6;
+    finalScoreElement.innerHTML = overallPoints;
+    finalLevelElement.innerHTML = levels[levelIdx].name;
+    gameOverElement.style.display = "flex";
+    gameOverElement.style.pointerEvents = "all";
 }
 
 function dragBall(e) {
@@ -315,9 +325,14 @@ function loop() {
             playSound(levelUpAudioSrc, false, 1);
             if (timerSound) (await timerSound).source.stop();
         }, 200);
-        setTimeout(() => {
+        setTimeout(async () => {
             levelIdx++;
-            if (levelIdx > 2) crowdSound = playSound(crowdAudioSrc, true, 0.2);
+            if (levelIdx > 5) {
+                (await crowdSound).source.stop();
+                spaceSound = playSound(spaceSoundSrc, true, 0.3);
+            } else if (levelIdx > 2) {
+                crowdSound = playSound(crowdAudioSrc, true, 0.2);
+            }
             loadLevel(nextLevel);
             nextLevel = levels[levelIdx + 1];
             ball.style.left = initialBallPositionX + "px";

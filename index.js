@@ -4,6 +4,7 @@ let audioContext;
 
 let mainSound;
 let crowdSound;
+let timerSound;
 
 const playOverlay = document.querySelector(".play-overlay");
 playOverlay.onclick = function () {
@@ -20,6 +21,7 @@ const bounceAudioSrc = "assets/sounds/bounce.mp3";
 const winAudioSrc = "assets/sounds/win.mp3";
 const crowdAudioSrc = "assets/sounds/crowd.mp3";
 const levelUpAudioSrc = "assets/sounds/levelup.mp3";
+const timerSoundSrc = "assets/sounds/timer.mp3";
 const levelUpDuration = 3000;
 
 let secondsLeft = 0;
@@ -153,14 +155,19 @@ function loadLevel(level) {
 }
 
 async function handleCountdownTick() {
-    secondsLeft = secondsLeft - 1;
     const minutes = Math.floor(secondsLeft / 60);
     const seconds = secondsLeft % 60;
-    if (minutes === 0 && seconds < 30) timeElement.style.color = 'red';
-    else timeElement.style.color = 'white';
+    if (minutes === 0 && seconds < 30) {
+        timeElement.style.color = 'red';
+        if (!timerSound) timerSound = playSound(timerSoundSrc, true, 1);
+    } else {
+        timeElement.style.color = 'white';
+        if (timerSound) (await timerSound).source.stop();
+    }
     timeElement.innerHTML = minutes + ":" + String(seconds).padStart(2, '0');
     if (minutes === 0 && seconds === 0) {
         gameOver = true;
+        if (timerSound) (await timerSound).source.stop();
         (await mainSound).gainNode.gain.value = 0.4;
         if (!crowdSound) crowdSound = playSound(crowdAudioSrc, true, 0.7);
         (await crowdSound).gainNode.gain.value = 0.6;
@@ -168,6 +175,8 @@ async function handleCountdownTick() {
         finalLevelElement.innerHTML = levels[levelIdx].name;
         gameOverElement.style.display = "flex";
         gameOverElement.style.pointerEvents = "all";
+    } else {
+        secondsLeft = secondsLeft - 1;
     }
 }
 
@@ -300,6 +309,7 @@ function loop() {
         setTimeout(async () => {
             (await mainSound).gainNode.gain.value = 0.4;
             playSound(levelUpAudioSrc, false, 1);
+            if (timerSound) (await timerSound).source.stop();
         }, 200);
         setTimeout(() => {
             levelIdx++;

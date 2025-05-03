@@ -1,3 +1,6 @@
+import {levels} from './levels.js';
+
+
 const mainAudio = new Audio("assets/sounds/main.mp3");
 mainAudio.loop = true;
 mainAudio.volume = 0.8;
@@ -13,6 +16,8 @@ playOverlay.onclick = function () {
 
 const bounce = new Audio("assets/sounds/bounce.mp3");
 const win = new Audio("assets/sounds/win.mp3");
+const levelUp = new Audio("assets/sounds/levelup.mp3");
+const levelUpDuration = 3000;
 
 const logo = document.querySelector(".logo");
 
@@ -20,8 +25,16 @@ const ball = document.querySelector(".ball");
 const ballHeight = ball.clientHeight;
 const ballWidth = ball.clientWidth;
 
+const content = document.querySelector(".content");
+
+const changeScenery = document.querySelector(".change-scenery");
+const sceneryChangeDuration = 2000;
+
+const scores = document.querySelector(".scores");
 const bouncesScore = document.querySelector(".bounces-score").firstElementChild;
 const overallScore = document.querySelector(".overall-score").firstElementChild;
+const levelName = document.querySelector(".level-name").firstElementChild;
+scores.style.display = "none";
 
 const mouseThrowStrengthFactor = 0.05;
 let ballDragging = false;
@@ -40,14 +53,18 @@ const frictionFloor = 0.9;
 const dampingWall = 0.2;
 const aGravity = 0.000981 * weight;
 
+const initialBallPositionX = (windowWidth / 2) - (ballWidth / 2);
+const initialBallPositionY = (3 * windowHeight / 4);
+
 let vYLast = 0;
-let posYLast = (3 * windowHeight / 4);
+let posYLast = initialBallPositionY;
 
 let vXLast = 0;
-let posXLast = (windowWidth / 2) - (ballWidth / 2);
+let posXLast = initialBallPositionX;
 let aX = 0.0000;
 
 let tLast = new Date().getTime();
+let lastBounceTime = 0;
 
 const boundaryEl = document.querySelector(".boundary");
 const boundaryEl2 = document.querySelector(".boundary-1");
@@ -64,6 +81,10 @@ let bouncePoints = 0;
 
 ball.style.top = posYLast + "px";
 ball.style.left = posXLast + "px";
+
+let levelIdx = 0;
+loadLevel(levels[levelIdx]);
+let nextLevel = levels[levelIdx + 1];
 
 function Box(element) {
     const rects = element.getBoundingClientRect();
@@ -94,6 +115,12 @@ function touchesBox(box, posY, posX) {
     return touchX && touchY;
 }
 
+function loadLevel(level) {
+    ball.style.backgroundImage = "url(\"" + level.ball + "\")"
+    content.style.backgroundImage = "url(\"" + level.gym + "\")"
+    levelName.innerHTML = level.name + " (" + (levelIdx + 1) + "/" + levels.length + ")";
+}
+
 function dragBall(e) {
     if (ballDragging) {
         posXLast = (e.touches ? e.touches[0].clientX : e.clientX) - ballDraggingOffsetX;
@@ -115,6 +142,8 @@ function dragBall(e) {
 function startDraggingBall(e) {
     e.preventDefault()
     logo.style.display = "none";
+    scores.style.display = "flex";
+    logo.classList.remove("logo");
     bouncePoints = 0;
     ballDragging = true;
     ballDraggingOffsetX = (e.touches ? e.touches[0].clientX : e.clientX) - ball.offsetLeft;
@@ -156,8 +185,11 @@ function loop() {
         posY = posY < 0 ? 0 : windowHeight - ballHeight;
         vY = -vY * dampingFloor;
         vX = vX * frictionFloor;
-        bouncePoints++;
-        bounce.play();
+        if (t - lastBounceTime > 100) {
+            bouncePoints++;
+            bounce.play();
+        }
+        lastBounceTime = t;
     }
 
     if (posX >= windowWidth - ballWidth || posX < 0) {
@@ -198,7 +230,7 @@ function loop() {
         checkpoint1Touched = false;
         clearTimeout(checkpointTimeout);
         checkpointTimeout = null;
-        win.play()
+        if (bouncesScore > 0) win.play()
     }
 
     posYLast = posY;
@@ -211,6 +243,29 @@ function loop() {
 
     bouncesScore.innerHTML = bouncePoints;
     overallScore.innerHTML = overallPoints;
+
+    if (nextLevel && overallPoints >= nextLevel.requiredScore) {
+        changeScenery.style.display = "flex";
+        mainAudio.volume = 0.2;
+        setTimeout(() => {
+            levelUp.play();
+        }, 200);
+        setTimeout(() => {
+            levelIdx++;
+            loadLevel(nextLevel);
+            nextLevel = levels[levelIdx + 1];
+            ball.style.left = initialBallPositionX + "px";
+            ball.style.top = initialBallPositionY + "px";
+            bouncePoints = 0;
+        }, sceneryChangeDuration / 2)
+        setTimeout(() => {
+            changeScenery.style.display = "none";
+        }, sceneryChangeDuration);
+        setTimeout(() => {
+            mainAudio.volume = 0.8;
+        }, levelUpDuration + 200);
+        return;
+    }
 
     if (!ballDragging) requestAnimationFrame(loop);
 }

@@ -327,10 +327,10 @@ function loop() {
         }, 200);
         setTimeout(async () => {
             levelIdx++;
-            if (levelIdx > 5) {
+            if (levelIdx === 6) {
                 (await crowdSound).source.stop();
-                spaceSound = playSound(spaceSoundSrc, true, 0.3);
-            } else if (levelIdx > 2) {
+                spaceSound = playSound(spaceSoundSrc, true, 0.6);
+            } else if (levelIdx === 3) {
                 crowdSound = playSound(crowdAudioSrc, true, 0.2);
             }
             loadLevel(nextLevel);

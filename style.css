@@ -77,9 +77,21 @@ body {
     pointer-events: none;
 }
 
+@media (max-width: 600px) {
+    .scores {
+        font-size: 24px;
+    }
+
+    .scores .current .bounces-score {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
 .scores .overall {
     display: flex;
     flex-direction: column;
+    text-align: end;
 }
 
 .scores .current {

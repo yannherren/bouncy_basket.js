@@ -168,6 +168,7 @@ async function handleCountdownTick() {
     if (minutes === 0 && seconds === 0) {
         gameOver = true;
         if (timerSound) (await timerSound).source.stop();
+        timerSound = null;
         (await mainSound).gainNode.gain.value = 0.4;
         if (!crowdSound) crowdSound = playSound(crowdAudioSrc, true, 0.7);
         (await crowdSound).gainNode.gain.value = 0.6;
